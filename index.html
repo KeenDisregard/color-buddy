@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Color Buddy</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Profile Selection Screen -->
+        <div id="screen-profiles" class="screen active">
+            <h1 class="screen-title">Who's playing today?</h1>
+            <div class="profile-grid" id="profile-grid">
+                <!-- Profiles injected by JS -->
+            </div>
+        </div>
+
+        <!-- Create Profile Screen -->
+        <div id="screen-create-profile" class="screen">
+            <h1 class="screen-title">Pick your color!</h1>
+            <div class="avatar-picker" id="avatar-picker">
+                <!-- Avatar options injected by JS -->
+            </div>
+        </div>
+
+        <!-- Idle/Attract Screen -->
+        <div id="screen-idle" class="screen">
+            <div class="idle-content">
+                <div class="mascot idle-mascot" id="mascot-idle">🌟</div>
+                <p class="idle-prompt">Tap to play!</p>
+            </div>
+        </div>
+
+        <!-- Teaching Screen -->
+        <div id="screen-teach" class="screen">
+            <div class="color-display" id="teach-color-display">
+                <div class="mascot teaching" id="mascot-teach">👆</div>
+                <p class="color-name" id="teach-color-name">Red</p>
+            </div>
+        </div>
+
+        <!-- Testing Screen -->
+        <div id="screen-test" class="screen">
+            <div class="color-display" id="test-color-display">
+                <div class="mascot questioning" id="mascot-test">👂</div>
+                <p class="test-prompt" id="test-prompt">What color is this?</p>
+            </div>
+        </div>
+
+        <!-- Listening Screen -->
+        <div id="screen-listening" class="screen">
+            <div class="color-display" id="listening-color-display">
+                <div class="mic-indicator" id="mic-indicator">🎤</div>
+                <p class="listening-prompt">I'm listening...</p>
+            </div>
+        </div>
+
+        <!-- Success Feedback Screen -->
+        <div id="screen-success" class="screen">
+            <div class="feedback-display success">
+                <div class="mascot celebrating" id="mascot-success">🎉</div>
+                <p class="feedback-text" id="success-text">Yes! It's Red!</p>
+                <div class="confetti" id="confetti"></div>
+            </div>
+        </div>
+
+        <!-- Correction Feedback Screen -->
+        <div id="screen-correction" class="screen">
+            <div class="feedback-display correction">
+                <div class="mascot encouraging" id="mascot-correction">💪</div>
+                <p class="feedback-text" id="correction-text">This color is Red!</p>
+                <p class="retry-prompt">Can you say it?</p>
+            </div>
+        </div>
+
+        <!-- End Session Screen -->
+        <div id="screen-end" class="screen">
+            <div class="end-display">
+                <div class="mascot waving" id="mascot-end">👋</div>
+                <p class="end-text">Great job today!</p>
+                <div class="colors-learned" id="colors-learned">
+                    <!-- Color badges injected by JS -->
+                </div>
+                <div class="streak-display" id="streak-display">
+                    🔥 <span id="streak-count">1</span> day streak!
+                </div>
+            </div>
+        </div>
+
+        <!-- Parental Stats Screen -->
+        <div id="screen-stats" class="screen">
+            <div class="stats-display">
+                <h2 class="stats-title" id="stats-title">Player Stats</h2>
+                <div class="stats-grid" id="stats-grid">
+                    <!-- Stats injected by JS -->
+                </div>
+                <button class="back-btn" id="stats-back-btn">← Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
