@@ -13,6 +13,17 @@
 
 <body>
     <div id="app">
+        <!-- Session Progress Bar (visible during gameplay) -->
+        <div id="session-progress" class="session-progress hidden">
+            <div class="session-progress-bar">
+                <div class="session-progress-fill" id="session-progress-fill"></div>
+            </div>
+            <div class="session-info">
+                <span class="turn-counter">Turn <span id="turn-count">1</span></span>
+                <span class="time-remaining" id="time-remaining">5:00</span>
+            </div>
+        </div>
+
         <!-- Profile Selection Screen -->
         <div id="screen-profiles" class="screen active">
             <h1 class="screen-title">Who's playing today?</h1>
@@ -21,11 +32,22 @@
             </div>
         </div>
 
-        <!-- Create Profile Screen -->
+        <!-- Create Profile Screen: Step 1 - Pick Avatar -->
         <div id="screen-create-profile" class="screen">
-            <h1 class="screen-title">Pick your color!</h1>
+            <h1 class="screen-title">Pick your buddy!</h1>
             <div class="avatar-picker" id="avatar-picker">
                 <!-- Avatar options injected by JS -->
+            </div>
+        </div>
+
+        <!-- Create Profile Screen: Step 2 - Enter Name -->
+        <div id="screen-enter-name" class="screen">
+            <h1 class="screen-title">What's your name?</h1>
+            <div class="name-input-container">
+                <div class="selected-avatar" id="selected-avatar">🦊</div>
+                <input type="text" id="player-name-input" class="player-name-input" placeholder="Type your name..."
+                    maxlength="12" autocomplete="off" autocapitalize="words">
+                <button id="confirm-name-btn" class="confirm-name-btn">Let's Play! 🎉</button>
             </div>
         </div>
 
@@ -106,9 +128,13 @@
             </div>
         </div>
 
-        <!-- Global Mic Indicator Overlay (always visible when listening) -->
+        <!-- Global Mic Indicator Overlay with Countdown Ring -->
         <div id="mic-overlay" class="mic-overlay hidden">
             <div class="mic-overlay-content">
+                <svg class="countdown-ring" viewBox="0 0 100 100">
+                    <circle class="countdown-ring-bg" cx="50" cy="50" r="45" />
+                    <circle class="countdown-ring-progress" id="countdown-ring" cx="50" cy="50" r="45" />
+                </svg>
                 <div class="mic-icon-large">🎤</div>
             </div>
         </div>

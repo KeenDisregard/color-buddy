@@ -83,6 +83,70 @@ body {
     overflow: hidden;
 }
 
+/* Session Progress Bar */
+.session-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+    transition: opacity var(--transition-normal);
+}
+
+.session-progress.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.session-progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-xs);
+}
+
+.session-progress-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    border-radius: 3px;
+    transition: width 1s linear, background 0.5s ease;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.session-progress-fill.warning {
+    background: linear-gradient(90deg, #ff9800, #ffc107);
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+}
+
+.session-progress-fill.urgent {
+    background: linear-gradient(90deg, #f44336, #ff5722);
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+}
+
+.session-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.turn-counter {
+    opacity: 0.9;
+}
+
+.time-remaining {
+    font-family: 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
 /* Screen System */
 .screen {
     position: absolute;
@@ -189,6 +253,70 @@ body {
 .avatar-option:hover {
     transform: scale(1.08);
     box-shadow: 0 0 30px currentColor;
+}
+
+/* Name Input Screen */
+.name-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    width: 100%;
+    max-width: 320px;
+}
+
+.selected-avatar {
+    font-size: 6rem;
+    animation: bounce 1s ease infinite;
+}
+
+.player-name-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    text-align: center;
+    background: var(--bg-card);
+    border: 3px solid var(--text-secondary);
+    border-radius: 16px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.player-name-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.player-name-input:focus {
+    border-color: #4caf50;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.confirm-name-btn {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-family: var(--font-family);
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.confirm-name-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+}
+
+.confirm-name-btn:active {
+    transform: scale(0.98);
 }
 
 /* Idle Screen */
@@ -541,4 +669,60 @@ body {
     50% {
         box-shadow: 0 0 40px rgba(76, 175, 80, 0.8);
     }
+}
+
+/* Countdown Ring */
+.mic-overlay-content {
+    position: relative;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 50%;
+    padding: var(--spacing-md);
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.countdown-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.countdown-ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 4;
+}
+
+.countdown-ring-progress {
+    fill: none;
+    stroke: #4caf50;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    /* 2 * PI * 45 */
+    stroke-dashoffset: 0;
+    transition: stroke 0.3s ease;
+    filter: drop-shadow(0 0 6px rgba(76, 175, 80, 0.8));
+}
+
+/* Color changes as time runs out */
+.countdown-ring-progress.warning {
+    stroke: #ff9800;
+    filter: drop-shadow(0 0 6px rgba(255, 152, 0, 0.8));
+}
+
+.countdown-ring-progress.urgent {
+    stroke: #f44336;
+    filter: drop-shadow(0 0 6px rgba(244, 67, 54, 0.8));
+}
+
+.mic-icon-large {
+    font-size: 2.5rem;
+    z-index: 1;
+    animation: micPulse 1s ease-in-out infinite;
 }

@@ -16,8 +16,8 @@ const CONFIG = {
         learning: 6000, // 6 seconds for learning
         mastered: 4000  // 4 seconds for mastered
     },
-    masteryThreshold: 6, // Correct recalls to be "mastered"
-    learningThreshold: 3, // Correct recalls to be "learning"
+    masteryThreshold: 3, // Correct recalls to be "mastered" (was 6)
+    learningThreshold: 2, // Correct recalls to be "learning" (was 3)
     srsIntervals: [0, 1, 3, 7, 14, 30], // days
     retestDelayMs: 30000, // 30 seconds for surprise retest
 };
@@ -61,6 +61,12 @@ const state = {
     // Guards against race conditions
     isBusy: false,
     turnId: 0, // Incremented each turn to invalidate stale callbacks
+    // Parent keyboard override
+    activeListenCallback: null, // Callback for current listening session
+    activeListenColor: null,    // Current color being listened for
+    activeListenIsAfterTeaching: false, // Whether this is after teaching
+    // Profile creation
+    pendingAvatarIndex: null, // Avatar index being created
 };
 
 // ============================================
@@ -93,10 +99,11 @@ const Storage = {
         this.saveProfiles(profiles);
     },
 
-    createProfile(avatarIndex) {
+    createProfile(avatarIndex, playerName) {
         const avatar = AVATARS[avatarIndex];
         const profile = {
             id: Date.now().toString(),
+            name: playerName || 'Player',
             avatar: avatar.emoji,
             color: avatar.color,
             createdAt: new Date().toISOString(),
@@ -420,7 +427,7 @@ const VoiceRecognition = {
 
         try {
             recognition.start();
-            this.showMic();
+            this.showMic(timeoutMs);
             AudioFeedback.micOn();
             console.log(`[VoiceRecog] Recognition started`);
         } catch (e) {
@@ -456,14 +463,75 @@ const VoiceRecognition = {
         }
     },
 
-    showMic() {
+    countdownInterval: null,
+    countdownStartTime: null,
+    countdownDuration: null,
+
+    showMic(durationMs) {
         const overlay = document.getElementById('mic-overlay');
         if (overlay) overlay.classList.remove('hidden');
+
+        // Start countdown if duration provided
+        if (durationMs) {
+            this.startCountdown(durationMs);
+        }
     },
 
     hideMic() {
         const overlay = document.getElementById('mic-overlay');
         if (overlay) overlay.classList.add('hidden');
+        this.stopCountdown();
+    },
+
+    startCountdown(durationMs) {
+        this.stopCountdown(); // Clear any existing
+
+        const ring = document.getElementById('countdown-ring');
+        if (!ring) return;
+
+        const circumference = 2 * Math.PI * 45; // 283
+        this.countdownStartTime = Date.now();
+        this.countdownDuration = durationMs;
+
+        // Reset ring
+        ring.style.strokeDashoffset = '0';
+        ring.classList.remove('warning', 'urgent');
+
+        this.countdownInterval = setInterval(() => {
+            const elapsed = Date.now() - this.countdownStartTime;
+            const remaining = Math.max(0, this.countdownDuration - elapsed);
+            const progress = remaining / this.countdownDuration;
+
+            // Update ring position (depletes clockwise)
+            const offset = circumference * (1 - progress);
+            ring.style.strokeDashoffset = offset;
+
+            // Update color based on remaining time
+            ring.classList.remove('warning', 'urgent');
+            if (progress < 0.25) {
+                ring.classList.add('urgent');
+            } else if (progress < 0.5) {
+                ring.classList.add('warning');
+            }
+
+            // Stop when done
+            if (remaining <= 0) {
+                this.stopCountdown();
+            }
+        }, 50); // Update every 50ms for smooth animation
+    },
+
+    stopCountdown() {
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+            this.countdownInterval = null;
+        }
+        // Reset ring appearance
+        const ring = document.getElementById('countdown-ring');
+        if (ring) {
+            ring.style.strokeDashoffset = '0';
+            ring.classList.remove('warning', 'urgent');
+        }
     },
 };
 
@@ -515,7 +583,7 @@ const UI = {
             card.style.setProperty('--profile-color', profile.color);
             card.innerHTML = `
                 <span class="profile-avatar">${profile.avatar}</span>
-                <span class="profile-name">Player</span>
+                <span class="profile-name">${profile.name || 'Player'}</span>
             `;
             card.addEventListener('click', () => Game.selectProfile(profile.id));
             card.addEventListener('contextmenu', (e) => {
@@ -550,7 +618,7 @@ const UI = {
             option.className = 'avatar-option';
             option.style.backgroundColor = avatar.color;
             option.textContent = avatar.emoji;
-            option.addEventListener('click', () => Game.createProfile(index));
+            option.addEventListener('click', () => Game.selectAvatar(index));
             picker.appendChild(option);
         });
     },
@@ -619,6 +687,56 @@ const Game = {
         document.getElementById('stats-back-btn').addEventListener('click', () => {
             UI.showScreen('profiles');
         });
+
+        // Name confirmation button
+        document.getElementById('confirm-name-btn').addEventListener('click', () => {
+            this.confirmProfile();
+        });
+
+        // Enter key on name input
+        document.getElementById('player-name-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.confirmProfile();
+            }
+        });
+
+        // Parent keyboard override for voice recognition
+        // Y, 1, ArrowRight = Correct | N, 0, ArrowLeft = Incorrect
+        document.addEventListener('keydown', (e) => {
+            if (!state.activeListenCallback) return; // Not listening
+
+            const key = e.key.toLowerCase();
+            let isCorrect = null;
+
+            if (key === 'y' || key === '1' || key === 'arrowright') {
+                isCorrect = true;
+            } else if (key === 'n' || key === '0' || key === 'arrowleft') {
+                isCorrect = false;
+            }
+
+            if (isCorrect !== null) {
+                e.preventDefault();
+                console.log(`[KeyOverride] Parent pressed ${key} -> ${isCorrect ? 'CORRECT' : 'INCORRECT'}`);
+
+                // Stop voice recognition
+                VoiceRecognition.stop();
+                AudioFeedback.micOff();
+
+                // Capture and clear callback to prevent double-firing
+                const callback = state.activeListenCallback;
+                const color = state.activeListenColor;
+                const isAfterTeaching = state.activeListenIsAfterTeaching;
+                state.activeListenCallback = null;
+                state.activeListenColor = null;
+
+                // Handle result
+                if (isCorrect) {
+                    this.handleSuccess(color);
+                } else {
+                    this.handleFailure(color, isAfterTeaching);
+                }
+            }
+        });
     },
 
     selectProfile(profileId) {
@@ -628,11 +746,37 @@ const Game = {
         }
     },
 
-    createProfile(avatarIndex) {
-        const profile = Storage.createProfile(avatarIndex);
+    selectAvatar(avatarIndex) {
+        state.pendingAvatarIndex = avatarIndex;
+        const avatar = AVATARS[avatarIndex];
+
+        // Update name screen with selected avatar
+        document.getElementById('selected-avatar').textContent = avatar.emoji;
+        document.getElementById('player-name-input').value = '';
+
+        UI.showScreen('enter-name');
+
+        // Focus the input
+        setTimeout(() => {
+            document.getElementById('player-name-input').focus();
+        }, 300);
+    },
+
+    confirmProfile() {
+        const nameInput = document.getElementById('player-name-input');
+        const playerName = nameInput.value.trim() || 'Player';
+
+        const profile = Storage.createProfile(state.pendingAvatarIndex, playerName);
         state.currentProfile = profile;
+        state.pendingAvatarIndex = null;
+
         UI.renderProfiles();
         UI.showScreen('idle');
+    },
+
+    createProfile(avatarIndex) {
+        // Legacy method - now goes through two-step flow
+        this.selectAvatar(avatarIndex);
     },
 
     showStats(profileId) {
@@ -647,14 +791,80 @@ const Game = {
         state.sessionStartTime = Date.now();
         state.retestQueue = [];
 
+        // Show and start session progress
+        this.showSessionProgress();
+        this.startSessionProgressTimer();
+
         // Update streak
         this.updateStreak();
 
-        // Check if onboarding needed
-        if (!state.currentProfile.isOnboarded) {
-            this.runOnboarding();
-        } else {
-            this.nextTurn();
+        // Greet player by name
+        const playerName = state.currentProfile.name || 'friend';
+        Speech.speak(`Hi ${playerName}! Let's learn colors!`, () => {
+            // Check if onboarding needed
+            if (!state.currentProfile.isOnboarded) {
+                this.runOnboarding();
+            } else {
+                this.nextTurn();
+            }
+        });
+    },
+
+    sessionProgressInterval: null,
+
+    showSessionProgress() {
+        const el = document.getElementById('session-progress');
+        if (el) el.classList.remove('hidden');
+    },
+
+    hideSessionProgress() {
+        const el = document.getElementById('session-progress');
+        if (el) el.classList.add('hidden');
+        if (this.sessionProgressInterval) {
+            clearInterval(this.sessionProgressInterval);
+            this.sessionProgressInterval = null;
+        }
+    },
+
+    startSessionProgressTimer() {
+        // Update immediately
+        this.updateSessionProgress();
+
+        // Update every second
+        this.sessionProgressInterval = setInterval(() => {
+            this.updateSessionProgress();
+        }, 1000);
+    },
+
+    updateSessionProgress() {
+        const elapsed = Date.now() - state.sessionStartTime;
+        const remaining = Math.max(0, CONFIG.sessionDurationMs - elapsed);
+        const progress = remaining / CONFIG.sessionDurationMs;
+
+        // Update progress bar
+        const fill = document.getElementById('session-progress-fill');
+        if (fill) {
+            fill.style.width = `${progress * 100}%`;
+            fill.classList.remove('warning', 'urgent');
+            if (progress < 0.2) {
+                fill.classList.add('urgent');
+            } else if (progress < 0.4) {
+                fill.classList.add('warning');
+            }
+        }
+
+        // Update turn counter
+        const turnEl = document.getElementById('turn-count');
+        if (turnEl) {
+            turnEl.textContent = state.turnId;
+        }
+
+        // Update time remaining
+        const timeEl = document.getElementById('time-remaining');
+        if (timeEl) {
+            const mins = Math.floor(remaining / 60000);
+            const secs = Math.floor((remaining % 60000) / 1000);
+            timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
         }
     },
 
@@ -783,15 +993,24 @@ const Game = {
             ? CONFIG.listeningWindowMs.new
             : SRS.getListeningWindow(state.currentProfile, color.name);
 
+        // Store for parent keyboard override
+        state.activeListenColor = color;
+        state.activeListenIsAfterTeaching = isAfterTeaching;
+
         const currentTurnId = state.turnId; // Capture turn ID
-        VoiceRecognition.listen(color.name, timeoutMs, (result) => {
+
+        const handleResult = (result) => {
             if (state.turnId !== currentTurnId) return; // Stale, ignore
+            state.activeListenCallback = null; // Clear callback
             if (result.success) {
                 this.handleSuccess(color);
             } else {
                 this.handleFailure(color, isAfterTeaching);
             }
-        }, currentTurnId);
+        };
+
+        state.activeListenCallback = handleResult;
+        VoiceRecognition.listen(color.name, timeoutMs, handleResult, currentTurnId);
     },
 
     handleSuccess(color) {
@@ -853,6 +1072,9 @@ const Game = {
         const profile = state.currentProfile;
         profile.sessionsCompleted++;
         Storage.saveProfile(profile);
+
+        // Hide session progress bar
+        this.hideSessionProgress();
 
         // Update UI
         UI.renderColorsLearned(profile);
