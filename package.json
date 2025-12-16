@@ -1,0 +1,29 @@
+{
+    "name": "color-buddy",
+    "version": "1.0.0",
+    "description": "Speak the color, build the memory. Master 36 colors through voice-activated play backed by proven learning science.",
+    "main": "app.js",
+    "scripts": {
+        "start": "npx http-server -p 8080",
+        "dev": "npx http-server -p 8080 -c-1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/KeenDisregard/color-buddy.git"
+    },
+    "keywords": [
+        "color",
+        "learning",
+        "voice",
+        "education",
+        "spaced-repetition",
+        "retrieval-practice",
+        "game"
+    ],
+    "author": "Evan Driscoll",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/KeenDisregard/color-buddy/issues"
+    },
+    "homepage": "https://keendisregard.github.io/color-buddy/"
+}
