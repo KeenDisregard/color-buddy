@@ -24,18 +24,18 @@ const CONFIG = {
 
 const COLORS = [
     // Phase 1: Primary
-    { name: 'Red', hex: '#ef4444', phase: 1 },
-    { name: 'Blue', hex: '#3b82f6', phase: 1 },
-    { name: 'Yellow', hex: '#facc15', phase: 1 },
+    { name: 'Red', hex: '#ef4444', phase: 1, aliases: ['red', 'read', 'rad', 'rid'] },
+    { name: 'Blue', hex: '#3b82f6', phase: 1, aliases: ['blue', 'blew', 'boo', 'blu'] },
+    { name: 'Yellow', hex: '#facc15', phase: 1, aliases: ['yellow', 'yell', 'yello', 'yella', 'yelo', 'ellow', 'jello', 'yallow', 'yaller'] },
     // Phase 2: Secondary
-    { name: 'Green', hex: '#22c55e', phase: 2 },
-    { name: 'Orange', hex: '#f97316', phase: 2 },
-    { name: 'Purple', hex: '#a855f7', phase: 2 },
+    { name: 'Green', hex: '#22c55e', phase: 2, aliases: ['green', 'grin', 'grean', 'gren'] },
+    { name: 'Orange', hex: '#f97316', phase: 2, aliases: ['orange', 'ornge', 'orang', 'orng'] },
+    { name: 'Purple', hex: '#a855f7', phase: 2, aliases: ['purple', 'purp', 'purpel', 'perple'] },
     // Phase 3: Neutrals/Common
-    { name: 'Black', hex: '#1f2937', phase: 3 },
-    { name: 'White', hex: '#f8fafc', phase: 3 },
-    { name: 'Brown', hex: '#92400e', phase: 3 },
-    { name: 'Pink', hex: '#ec4899', phase: 3 },
+    { name: 'Black', hex: '#1f2937', phase: 3, aliases: ['black', 'blak', 'bloc'] },
+    { name: 'White', hex: '#f8fafc', phase: 3, aliases: ['white', 'wite', 'whit', 'wait'] },
+    { name: 'Brown', hex: '#92400e', phase: 3, aliases: ['brown', 'bron', 'brawn'] },
+    { name: 'Pink', hex: '#ec4899', phase: 3, aliases: ['pink', 'pank', 'pinc'] },
 ];
 
 const AVATARS = [
@@ -372,13 +372,29 @@ const VoiceRecognition = {
             }
             hasResult = true;
             clearTimeout(this.activeTimeout);
-            const heard = event.results[0][0].transcript.toLowerCase();
+            const heard = event.results[0][0].transcript.toLowerCase().trim();
             const confidence = event.results[0][0].confidence;
             const target = targetWord.toLowerCase();
-            // Fuzzy match: check if target word is contained in what was heard
-            const success = heard.includes(target) ||
-                this.fuzzyMatch(heard, target);
-            console.log(`[VoiceRecog] Heard "${heard}" (conf: ${confidence.toFixed(2)}), target "${target}", success: ${success}`);
+
+            // Check against aliases if available
+            const color = COLORS.find(c => c.name.toLowerCase() === target);
+            const aliases = color?.aliases || [target];
+
+            // Check if any alias matches what was heard
+            const success = aliases.some(alias => {
+                const aliasLower = alias.toLowerCase();
+                // Direct match, contains, or fuzzy match
+                return heard === aliasLower ||
+                    heard.includes(aliasLower) ||
+                    aliasLower.includes(heard) ||
+                    this.fuzzyMatch(heard, aliasLower);
+            });
+            if (success) {
+                console.log(`✅ [VoiceRecog] MATCH! Heard "${heard}" for target "${target}"`);
+            } else {
+                console.warn(`❌ [VoiceRecog] NO MATCH: Heard "${heard}" but expected one of: [${aliases.join(', ')}]`);
+                console.warn(`   Consider adding "${heard}" to aliases if this was correct pronunciation`);
+            }
             callback({ success, heard });
         };
 
