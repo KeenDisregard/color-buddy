@@ -72,10 +72,12 @@
 
         <!-- Correction Feedback Screen -->
         <div id="screen-correction" class="screen">
-            <div class="feedback-display correction">
-                <div class="mascot encouraging" id="mascot-correction">💪</div>
-                <p class="feedback-text" id="correction-text">This color is Red!</p>
-                <p class="retry-prompt">Can you say it?</p>
+            <div class="color-display" id="correction-color-display">
+                <div class="feedback-display correction">
+                    <div class="mascot encouraging" id="mascot-correction">💪</div>
+                    <p class="feedback-text" id="correction-text">This color is Red!</p>
+                    <p class="retry-prompt">Can you say it?</p>
+                </div>
             </div>
         </div>
 
@@ -101,6 +103,13 @@
                     <!-- Stats injected by JS -->
                 </div>
                 <button class="back-btn" id="stats-back-btn">← Back</button>
+            </div>
+        </div>
+
+        <!-- Global Mic Indicator Overlay (always visible when listening) -->
+        <div id="mic-overlay" class="mic-overlay hidden">
+            <div class="mic-overlay-content">
+                <div class="mic-icon-large">🎤</div>
             </div>
         </div>
     </div>
