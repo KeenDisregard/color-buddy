@@ -171,6 +171,66 @@ body {
     font-weight: 900;
     margin-bottom: var(--spacing-xl);
     text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+/* Color Orbs Background Decoration */
+.color-orbs-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.color-orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.4;
+    filter: blur(2px);
+    animation: floatOrb 20s ease-in-out infinite;
+}
+
+.color-orb.size-sm {
+    width: 20px;
+    height: 20px;
+}
+
+.color-orb.size-md {
+    width: 35px;
+    height: 35px;
+}
+
+.color-orb.size-lg {
+    width: 50px;
+    height: 50px;
+}
+
+@keyframes floatOrb {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(10px, -15px) scale(1.05);
+    }
+
+    50% {
+        transform: translate(-5px, 10px) scale(0.95);
+    }
+
+    75% {
+        transform: translate(-10px, -5px) scale(1.02);
+    }
+}
+
+/* Ensure profile grid is above orbs */
+.profile-grid {
+    position: relative;
+    z-index: 10;
 }
 
 /* Profile Selection */

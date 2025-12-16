@@ -29,13 +29,43 @@ const COLORS = [
     { name: 'Yellow', hex: '#facc15', phase: 1, aliases: ['yellow', 'yell', 'yello', 'yella', 'yelo', 'ellow', 'jello', 'yallow', 'yaller'] },
     // Phase 2: Secondary
     { name: 'Green', hex: '#22c55e', phase: 2, aliases: ['green', 'grin', 'grean', 'gren'] },
-    { name: 'Orange', hex: '#f97316', phase: 2, aliases: ['orange', 'ornge', 'orang', 'orng'] },
+    { name: 'Orange', hex: '#FFA500', phase: 2, aliases: ['orange', 'ornge', 'orang', 'orng'] },
     { name: 'Purple', hex: '#a855f7', phase: 2, aliases: ['purple', 'purp', 'purpel', 'perple'] },
     // Phase 3: Neutrals/Common
     { name: 'Black', hex: '#1f2937', phase: 3, aliases: ['black', 'blak', 'bloc'] },
     { name: 'White', hex: '#f8fafc', phase: 3, aliases: ['white', 'wite', 'whit', 'wait'] },
-    { name: 'Brown', hex: '#92400e', phase: 3, aliases: ['brown', 'bron', 'brawn'] },
-    { name: 'Pink', hex: '#ec4899', phase: 3, aliases: ['pink', 'pank', 'pinc'] },
+    { name: 'Brown', hex: '#8B4513', phase: 3, aliases: ['brown', 'bron', 'brawn'] },
+    { name: 'Pink', hex: '#FFC0CB', phase: 3, aliases: ['pink', 'pank', 'pinc'] },
+    // Phase 4: Familiar Extended
+    { name: 'Gold', hex: '#FFD700', phase: 4, aliases: ['gold', 'gould', 'goald'] },
+    { name: 'Silver', hex: '#C0C0C0', phase: 4, aliases: ['silver', 'silber', 'silvr'] },
+    { name: 'Coral', hex: '#FF7F50', phase: 4, aliases: ['coral', 'corral', 'corel'] },
+    { name: 'Sky Blue', hex: '#87CEEB', phase: 4, aliases: ['sky blue', 'sky', 'skyblue', 'light blue'] },
+    { name: 'Lime', hex: '#32CD32', phase: 4, aliases: ['lime', 'lyme', 'lim'] },
+    { name: 'Peach', hex: '#FFDAB9', phase: 4, aliases: ['peach', 'peech', 'pech'] },
+    // Phase 5: Nature Colors
+    { name: 'Forest', hex: '#228B22', phase: 5, aliases: ['forest', 'forest green', 'forrest'] },
+    { name: 'Navy', hex: '#000080', phase: 5, aliases: ['navy', 'navy blue', 'navey'] },
+    { name: 'Turquoise', hex: '#40E0D0', phase: 5, aliases: ['turquoise', 'turkoise', 'turquois', 'turk'] },
+    { name: 'Lavender', hex: '#E6E6FA', phase: 5, aliases: ['lavender', 'lavendar', 'lavander'] },
+    { name: 'Cream', hex: '#FFFDD0', phase: 5, aliases: ['cream', 'creme', 'creem'] },
+    { name: 'Olive', hex: '#808000', phase: 5, aliases: ['olive', 'oliv', 'olives'] },
+    // Phase 6: Jewel Tones
+    { name: 'Emerald', hex: '#50C878', phase: 6, aliases: ['emerald', 'emrald', 'emereld'] },
+    { name: 'Crimson', hex: '#DC143C', phase: 6, aliases: ['crimson', 'crimsen', 'krimson'] },
+    { name: 'Teal', hex: '#008080', phase: 6, aliases: ['teal', 'teel', 'teale'] },
+    { name: 'Violet', hex: '#8A2BE2', phase: 6, aliases: ['violet', 'violit', 'vilet'] },
+    { name: 'Royal Blue', hex: '#4169E1', phase: 6, aliases: ['royal blue', 'royal', 'royalblue'] },
+    { name: 'Aqua', hex: '#00FFFF', phase: 6, aliases: ['aqua', 'aqua blue', 'akwa', 'agua'] },
+    // Phase 7: Subtle/Advanced
+    { name: 'Maroon', hex: '#800000', phase: 7, aliases: ['maroon', 'marune', 'marone'] },
+    { name: 'Indigo', hex: '#4B0082', phase: 7, aliases: ['indigo', 'indago', 'indego'] },
+    { name: 'Beige', hex: '#F5F5DC', phase: 7, aliases: ['beige', 'bayge', 'beig'] },
+    { name: 'Chartreuse', hex: '#7FFF00', phase: 7, aliases: ['chartreuse', 'chartroose', 'shar truce'] },
+    { name: 'Magenta', hex: '#FF00FF', phase: 7, aliases: ['magenta', 'magenda', 'majenta'] },
+    { name: 'Slate', hex: '#708090', phase: 7, aliases: ['slate', 'slayt', 'slait'] },
+    { name: 'Charcoal', hex: '#36454F', phase: 7, aliases: ['charcoal', 'charcol', 'charcoale'] },
+    { name: 'Taupe', hex: '#483C32', phase: 7, aliases: ['taupe', 'tope', 'taup'] },
 ];
 
 const AVATARS = [
@@ -663,6 +693,35 @@ const UI = {
             </div>
         `;
     },
+
+    renderColorOrbs() {
+        const container = document.getElementById('color-orbs-bg');
+        if (!container) return;
+
+        container.innerHTML = '';
+        const sizes = ['size-sm', 'size-md', 'size-lg'];
+
+        COLORS.forEach((color, index) => {
+            const orb = document.createElement('div');
+            orb.className = `color-orb ${sizes[index % 3]}`;
+            orb.style.backgroundColor = color.hex;
+
+            // Distribute orbs around the edges and scattered in background
+            const angle = (index / COLORS.length) * Math.PI * 2;
+            const radius = 30 + Math.random() * 40; // 30-70% from center
+            const x = 50 + Math.cos(angle) * radius;
+            const y = 50 + Math.sin(angle) * radius;
+
+            orb.style.left = `${Math.max(5, Math.min(95, x))}%`;
+            orb.style.top = `${Math.max(5, Math.min(95, y))}%`;
+
+            // Randomize animation timing for organic feel
+            orb.style.animationDelay = `${-index * 0.5}s`;
+            orb.style.animationDuration = `${15 + Math.random() * 10}s`;
+
+            container.appendChild(orb);
+        });
+    },
 };
 
 // ============================================
@@ -674,6 +733,7 @@ const Game = {
         VoiceRecognition.init();
         UI.renderProfiles();
         UI.renderAvatarPicker();
+        UI.renderColorOrbs();
         this.bindEvents();
     },
 
