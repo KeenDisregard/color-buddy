@@ -175,6 +175,40 @@ body {
     z-index: 10;
 }
 
+.main-logo {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    position: relative;
+    z-index: 10;
+}
+
+.logo-letter {
+    font-size: 3.5rem;
+    font-weight: 900;
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: default;
+}
+
+.logo-letter:hover {
+    transform: translateY(-10px) scale(1.1);
+}
+
+.logo-space {
+    width: 1rem;
+}
+
+.sub-title {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+    z-index: 10;
+}
+
 /* Color Orbs Background Decoration */
 .color-orbs-bg {
     position: absolute;
@@ -211,19 +245,19 @@ body {
 
     0%,
     100% {
-        transform: translate(0, 0) scale(1);
+        transform: translate(var(--parallax-x, 0), var(--parallax-y, 0)) scale(1);
     }
 
     25% {
-        transform: translate(10px, -15px) scale(1.05);
+        transform: translate(calc(var(--parallax-x, 0) + 10px), calc(var(--parallax-y, 0) - 15px)) scale(1.05);
     }
 
     50% {
-        transform: translate(-5px, 10px) scale(0.95);
+        transform: translate(calc(var(--parallax-x, 0) - 5px), calc(var(--parallax-y, 0) + 10px)) scale(0.95);
     }
 
     75% {
-        transform: translate(-10px, -5px) scale(1.02);
+        transform: translate(calc(var(--parallax-x, 0) - 10px), calc(var(--parallax-y, 0) - 5px)) scale(1.02);
     }
 }
 
@@ -251,9 +285,24 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    border: 3px solid transparent;
-    background: var(--bg-card);
+    /* Glassmorphism Base */
+    background: rgba(30, 41, 59, 0.7);
+    /* Semi-transparent slate */
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card.filled {
+    border: 2px solid var(--profile-color);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.profile-card.filled:hover {
+    box-shadow: 0 0 25px var(--profile-color);
+    transform: translateY(-5px);
+    background: rgba(30, 41, 59, 0.9);
 }
 
 .profile-card:hover {
@@ -270,7 +319,27 @@ body {
 }
 
 .profile-card.empty {
-    border: 3px dashed var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+.profile-card.empty:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.profile-card.empty .profile-add {
+    color: rgba(255, 255, 255, 0.4);
+    transition: color 0.3s ease;
+}
+
+.profile-card.empty:hover .profile-add {
+    color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
 }
 
 .profile-avatar {

@@ -721,6 +721,41 @@ const UI = {
 
             container.appendChild(orb);
         });
+
+        // Add mouse parallax effect using CSS variables to avoid conflict with float animation
+        // Mouse Parallax with Smooth Interpolation
+        let targetX = 0;
+        let targetY = 0;
+        let currentX = 0;
+        let currentY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            if (state.currentScreen !== 'profiles') return;
+            // Target is where the mouse wants to go
+            targetX = (e.clientX / window.innerWidth - 0.5) * 60;
+            targetY = (e.clientY / window.innerHeight - 0.5) * 60;
+        });
+
+        // Frame loop to smoothly interpolate towards the target
+        const updateParallax = () => {
+            if (state.currentScreen === 'profiles') {
+                // Lerp: move 1.5% of the way towards target each frame
+                // This creates a buttery smooth delay/drift effect
+                currentX += (targetX - currentX) * 0.015;
+                currentY += (targetY - currentY) * 0.015;
+
+                const orbs = document.querySelectorAll('.color-orb');
+                orbs.forEach((orb, i) => {
+                    const depth = (i % 3) + 1;
+                    const moveX = currentX * depth * -1;
+                    const moveY = currentY * depth * -1;
+                    orb.style.setProperty('--parallax-x', `${moveX}px`);
+                    orb.style.setProperty('--parallax-y', `${moveY}px`);
+                });
+            }
+            requestAnimationFrame(updateParallax);
+        };
+        requestAnimationFrame(updateParallax);
     },
 };
 
