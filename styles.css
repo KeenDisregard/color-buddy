@@ -1060,3 +1060,27 @@ kbd {
     text-align: center;
     font-style: italic;
 }
+
+/* Version Indicator */
+.version-indicator {
+    position: absolute;
+    bottom: var(--spacing-sm);
+    right: var(--spacing-sm);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: opacity 0.2s ease, color 0.2s ease, background 0.2s ease;
+    z-index: 10;
+}
+
+.version-indicator:hover {
+    opacity: 1;
+    color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.05);
+}
