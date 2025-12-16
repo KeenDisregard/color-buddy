@@ -795,6 +795,36 @@ const Game = {
             }
         });
 
+        // About modal
+        const aboutLink = document.getElementById('about-link');
+        const aboutModal = document.getElementById('about-modal');
+        const aboutClose = document.getElementById('about-close');
+
+        if (aboutLink && aboutModal) {
+            aboutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                aboutModal.classList.remove('hidden');
+            });
+
+            aboutClose?.addEventListener('click', () => {
+                aboutModal.classList.add('hidden');
+            });
+
+            // Close on overlay click (but not modal content)
+            aboutModal.addEventListener('click', (e) => {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.add('hidden');
+                }
+            });
+
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !aboutModal.classList.contains('hidden')) {
+                    aboutModal.classList.add('hidden');
+                }
+            });
+        }
+
         // Parent keyboard override for voice recognition
         // Y, 1, ArrowRight = Correct | N, 0, ArrowLeft = Incorrect
         document.addEventListener('keydown', (e) => {
